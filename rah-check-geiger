@@ -35,14 +35,14 @@ if __name__ == "__main__":
         timespan = float(current_data[6])
         usv = (( ticks / timespan) / 171.232876)
         if usv > crit:
-            print("radiation CRITICAL at {:.3f}uSv/h - above {}uSv/h".format(usv,crit))
+            print("radiation CRITICAL at {0:.3f}uSv/h - above {2}uSv/h|radiation={0:.3f};{1};{2};;".format(usv,warn,crit))
             sys.exit(2)
         elif usv > warn:
-            print("radiation WARNING at {:.3f}uSv/h - above {}uSv/h".format(usv,warn))
+            print("radiation WARNING at {0:.3f}uSv/h - above {1}uSv/h|radiation={0:.3f};{1};{2};;".format(usv,warn,crit))
             sys.exit(1)
         else:
-            print("radiation OK at {:.3f}uSv/h - below {}uSv/h".format(usv,warn))
+            print("radiation OK at {0:.3f}uSv/h - below {1}uSv/h|radiation={0:.3f};{1};{2};;".format(usv,warn,crit))
             sys.exit(0)
     except Exception as e:
-        print("radiation UNKNOWN - cannot calculate data from input - {}".format(e))
+        print("radiation UNKNOWN - cannot calculate data from input - {}|radiation=;{};{};;".format(e,warn,crit))
         sys.exit(3)

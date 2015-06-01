@@ -5,6 +5,7 @@ radioactive.org auxilary tools which utilize the raw data export `gettrickledata
 The scripts are working with the radioactiveathome.org api. 
 Forum Post: http://radioactiveathome.org/boinc/forum_thread.php?id=60
 Exporter:  http://radioactiveathome.org/boinc/gettrickledata.php?start=X&hostid=Y
+Output according to icinga guidelines: https://nagios-plugins.org/doc/guidelines.html
 
 # check_geiger
 

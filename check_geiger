@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+""" usage: check_geiger [options]
+
+Options:
+    -w --warning <uSv>               Warning level in uSv [default: 0.3]
+    -c --critical <uSv>              Critical level in uSv [default: 0.8]
+    -h --hostid <id>                 Host Identity in radioactiveathome [default: 14364]
+    -u --url <URL>                  radioactivehome trickledata [default: http://radioactiveathome.org/boinc/gettrickledata.php]
+
+"""
+
+
+from docopt import docopt
+import requests,csv,sys
+
+if __name__ == "__main__":
+    args = docopt(__doc__)
+    warn = args['--warning']
+    crit = args['--critical']
+    hostid = args['--hostid']
+    url = args['--url']
+    payload = {'hostid':hostid}
+    try:
+        ret = requests.get(url,params=payload)
+        current_data_field = int(ret.text.split('\n')[0].split(':')[1])
+        payload['start'] =current_data_field -1
+        current_data = requests.get(url,params=payload).text.split('\n')[-2].split(',')
+    except:
+        print("radiation UNKNOWN - cannot retrieve data from {}".format(url))
+        sys.exit(3)
+    try:
+        ticks = float(current_data[2])
+        timespan = float(current_data[6])
+        usv = (( ticks / timespan) / 171.232876)
+        if usv > crit:
+            print("radiation CRITICAL at {:.3f}uSv/h - above {}uSv/h".format(usv,crit))
+            sys.exit(2)
+        elif usv > warn:
+            print("radiation WARNING at {:.3f}uSv/h - above {}uSv/h".format(usv,warn))
+            sys.exit(1)
+        else:
+            print("radiation OK at {:.3f}uSv/h - below {}uSv/h".format(usv,warn))
+            sys.exit(0)
+    except Exception as e:
+        print("radiation UNKNOWN - cannot calculate data from input - {}".format(e))
+        sys.exit(3)

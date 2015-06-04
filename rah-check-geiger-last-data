@@ -35,13 +35,13 @@ if __name__ == "__main__":
 
         timeout = datetime.now() - datetime.strptime(current_data[3],"%Y-%m-%d %H:%M:%S")
         if timeout > crit:
-            print("radiation timeout CRITICAL - no data since {0:.2f} hours;radiation_timeout={1:.0f}s;{2:.0f};{3:.0f};;".format((timeout.seconds /60) / 60,timeout.seconds,warn.total_seconds(),crit.total_seconds() ))
+            print("radiation timeout CRITICAL - no data since {0:.2f} hours|radiation_timeout={1:.0f}s;{2:.0f};{3:.0f};;".format((timeout.seconds /60) / 60,timeout.seconds,warn.total_seconds(),crit.total_seconds() ))
             sys.exit(2)
         elif timeout > warn:
-            print("radiation timeout WARNING - no data since {0:.2f} hours;radiation_timeout={1:.0f}s;{2:.0f};{3:.0f};;".format((timeout.seconds /60) / 60,timeout.seconds,warn.total_seconds(),crit.total_seconds() ))
+            print("radiation timeout WARNING - no data since {0:.2f} hours|radiation_timeout={1:.0f}s;{2:.0f};{3:.0f};;".format((timeout.seconds /60) / 60,timeout.seconds,warn.total_seconds(),crit.total_seconds() ))
             sys.exit(1)
         else:
-            print("radiation timeout OK - last data {0:.0f} minutes ago;radiation_timeout={1}s;{2:.0f};{3:.0f};;".format((timeout.seconds /60),
+            print("radiation timeout OK - last data {0:.0f} minutes ago|radiation_timeout={1}s;{2:.0f};{3:.0f};;".format((timeout.seconds /60),
                         timeout.seconds, warn.total_seconds(),crit.total_seconds() ))
             sys.exit(0)
     except Exception as e:

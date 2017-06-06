@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" RadioactiveAtHome check geiger uSv 
+""" RadioactiveAtHome fetch geiger uSv data
 
 usage: rah-check-geiger [options] [loop [TIMEOUT]]
 
@@ -11,41 +11,32 @@ Options:
     --back <NUM>            the number of datapoints we should check in the past [default: 1000000]
 
 if using loop mode the TIMEOUT defines the number of minutes between fetching points
+The backlog does not correlate with the number of total data points for a given
+sensor as the api returns the data for all sensors
 
 """
 
 
 
-def send_all_data(sensor,kv):
+def send_all_data(sensor,kv,target):
     import socket
     data=""
     now=datetime.now()
     sock = socket.socket()
     for value,ts in kv:
         data+="sensors.radiation.{} {} {}\n".format(sensor,value,ts)
-    sock.connect((CARBON_HOST, CARBON_PORT))
+    sock.connect(target)
     print(data.strip())
     sock.sendall(data.encode())
     sock.close()
 
-def sensor_to_graphite(sensor,value,ts):
-    import socket
-    now=datetime.now()
-    sock = socket.socket()
-    data="sensors.radiation.{} {} {}\n".format(sensor,value,ts)
-    sock.connect((CARBON_HOST, CARBON_PORT))
-    print(data.strip())
-    sock.sendall(data.encode())
-    sock.close()
-    return
-
-def fetch_live_data(url,hostid)
+def fetch_live_data(url,hostid,backwards=1000000):
     payload = {'hostid':hostid}
     try:
         ret = requests.get(url,params=payload)
         current_data_field = int(ret.text.split('\n')[0].split(':')[1])
-        payload['start'] =current_data_field - backwards
-        all_data= requests.get(url,params=payload).text.split('\n')[1:-1]
+        payload['start'] = current_data_field - backwards
+        all_data = requests.get(url,params=payload).text.split('\n')[1:-1]
     except:
         print("radiation UNKNOWN - cannot retrieve data from {}".format(url))
         raise
@@ -61,24 +52,27 @@ def fetch_live_data(url,hostid)
 from docopt import docopt
 import requests,csv,sys
 from datetime import datetime
-
+import time
 if __name__ == "__main__":
     args = docopt(__doc__)
     hostid = args['--hostid']
     backwards= int(args['--back'])
     url = args['--url']
-    CARBON_HOST = args['--carbon-host']
-    CARBON_PORT = int(args['--carbon-port'])
+    target = (args['--carbon-host'],int(args['--carbon-port']))
     loop = args['loop']
     timeout = int( args['TIMEOUT'] or 10) * 60
     while loop:
         begin = time.clock()
         try:
-            send_all_data(1,list(fetch_live_data(url,hostid)))
-        except:
-            print("unable to fetch live data")
+            print("Fetching Data")
+            kv = list(fetch_live_data(url,hostid,backwards))
+            print("sending {} data points to graphite".format(len(kv)))
+            send_all_data(1,kv,target)
+        except Exception as e:
+            print("unable to fetch or relay live data")
+            print(e)
         sleeptime = timeout - time.clock() + begin
-        print("sleeping for {} minutes".format(sleeptime/60)
-        time.sleep()
+        print("sleeping for {} minutes".format(sleeptime/60))
+        time.sleep(sleeptime)
     else:
-        send_all_data(1,list(fetch_live_data(url,hostid)))
+        send_all_data(1,list(fetch_live_data(url,hostid,backwards)),target)

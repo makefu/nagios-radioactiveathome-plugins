@@ -1,0 +1,10 @@
+[Unit]
+Description=add last radioactiveathome point to graphite
+
+[Service]
+Type=oneshot
+User=nobody
+Group=nobody
+#RemainAfterExit=yes
+WorkingDirectory=/opt/nagios-radioactiveathome-plugins/
+ExecStart=/bin/sh add_point.sh

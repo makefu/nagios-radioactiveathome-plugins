@@ -6,7 +6,7 @@ usage: rah-check-geiger [options] [loop [TIMEOUT]]
 Options:
     -h --hostid <id>        Host Identity in radioactiveathome [default: 14364]
     -u --url <URL>          radioactivehome trickledata [default: http://radioactiveathome.org/boinc/gettrickledata.php]
-    --carbon-host <HOST>    the carbon host [default: heidi.shack]
+    --carbon-host <HOST>    the carbon host [default: localhost]
     --carbon-port <PORT>    the carbon port [default: 2003]
     --back <NUM>            the number of datapoints we should check in the past [default: 1000000]
 
